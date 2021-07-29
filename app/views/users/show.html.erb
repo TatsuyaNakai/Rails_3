@@ -1,0 +1,6 @@
+<% provide(:title, @user.name) %>
+<h1>
+  <%= gravatar_for @user %>
+  <!--他のviewでも使う可能性があるから、ヘルパーメソッドで定義する。-->
+  <%= @user.name %>
+</h1>
