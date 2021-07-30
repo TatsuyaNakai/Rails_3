@@ -12,6 +12,12 @@
   <body>
     <%= render 'layouts/header' %>
     <div class="container">
+      <% flash.each do |message_type, message| %>
+        <%= content_tag(:div, message, class: "alert alert-#{message_type}" %>
+        <!-- flashは、キーとバリューを持ってて、キーは、コントローラーで定義したハッシュの中。
+              バリューは代入した内容がはいる。-->
+      <% end %>
+      <!--この上のやつでsignupのcssが崩れてる。-->
       <%= yield %>
       <%= render 'layouts/footer' %>
       <%= debug(params) if Rails.env.development? %>
