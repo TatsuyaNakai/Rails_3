@@ -35,7 +35,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     follow_redirect!
     # コントローラのページ遷移に従う。今回で言うとredirect_toに従う。
     assert_template 'users/show'
-    assert_not flash.empty?
+    assert is_logged_in?
   end
   
 end

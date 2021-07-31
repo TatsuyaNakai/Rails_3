@@ -1,7 +1,6 @@
 class ApplicationController < ActionController::Base
-    def hello
-    render html: "Hello world!"
-    end
-
+    include SessionsHelper
+    # ヘルパーモジュールにSessionsHelperがモジュールかされてるから、
+    # それをコントローラーの親クラス（ここ）で書くことで全コントローラーで書ける
     
 end
