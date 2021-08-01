@@ -16,6 +16,8 @@ class SessionsController < ApplicationController
       #    def log_in(user)
       #     session[:user_id]= user.id
       #    end
+      remember user
+      # カラムのremember_digestにはランダムで２２文字入れたものをハッシュ化したものがvalidetesに触れずに上書きされてる。
       redirect_to user
       # これも鬼の短縮形のやつ、この文字に対応する〇〇_urlが削られてて、引数の（）がなくなってるって考えれば難しくない。
     else

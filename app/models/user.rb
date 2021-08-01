@@ -1,4 +1,7 @@
 class User < ApplicationRecord
+  attr_accessor :remember_token
+  # migrationを設定しなくても、remember_tokenを編集、更新できるようにするため
+  
   before_save {self.email= email.downcase}
   # 書き換えようと思ったら↓も可能。破壊的メソッドにしないと元データを変えれないので注意する。
   # before_save {email.downcase!}
@@ -19,9 +22,41 @@ class User < ApplicationRecord
   validates :password, presence:true, length: {minimum: 6}
   
   def User.digest(string)
+    # これもクラスメソッドを使ってる。
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
                                                   BCrypt::Engine.cost
+    # min_cost?はRailsのソースコードで記載されてるメソッド。テスト環境ならtrueを返す。
+    # BCrypt /パスワードをハッシュ化するアルゴリズムのこと
+    # BCrypt::Engine::MIN_COST / 最小コスト（コストをかければパスワードの推測が難しくなる）で返す。
+    # BCrypt::Engine.cost / 基本のコストで返す。
     BCrypt::Password.create(string, cost: cost)
+    # 上で定義したコストをかけてstringをハッシュする。
+  end 
+  # 渡された値をとにかくハッシュ化する関数。（環境によってコストの掛け方変えるよ）
+  
+  def User.new_token
+    SecureRandom.urlsafe_base64
+    # クラスメソッドで呼び出してる。SecureRandomはもとからRubyに備わってるライブラリ
+    # SecureRandom /安全に乱数を出力するためのモジュール
+    # urlsafe_base64 /64文字の中から、ランダムに22文字が使用されて文字列を作る。
+  end
+  
+  def remember
+    self.remember_token= User.new_token
+    # カラムに定義してないremember_tokenに22文字の乱数を代入
+    # remember_tokenはmigrateしてないから、保存はできるけど、取得も更新もできない。
+    # だからattr_accessorを作った。そこに代入するためにselfをつけてる。
+    update_attribute(:remember_digest, User.digest(remember_token))
+    # 第一引数を第二引数の値に更新する。update_attributeはvalidatesを完全にスルーできる。
+    # カラムに設定したremember_digestを変更した。
+    # ちなみに、update_attriburesはvalidatesの制約を受ける。
+  end
+  # カラムのremember_digestにはランダムで２２文字入れたものをハッシュ化したものが上書きされてる。
+  
+  def authenticate?(remember_token)
+    BCrypt::Password.new(remember_digest).is_password?(remember_token)
+    # 引数に渡された値が、remember_digestの値と等しいかどうかを真偽値で返すメソッドを作った。
+    # ちなみに、ここのremember_tokenはattr_accessorのremember_tokenとは全く関係ない。ただの引数として考える。
   end
   
 end
