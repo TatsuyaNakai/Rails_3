@@ -19,7 +19,8 @@ class User < ApplicationRecord
           
   has_secure_password
   # これで、ハッシュ化したセキュアなパスワードが完成する。
-  validates :password, presence:true, length: {minimum: 6}
+  validates :password, presence:true, length: {minimum: 6}, allow_nil: true
+  # allow_nilでも、has_secure_passwordの方が優先度が高いから、新規登録の時には文字がないと有効にならないようになってる。
   
   def User.digest(string)
     # これもクラスメソッドを使ってる。
@@ -54,9 +55,15 @@ class User < ApplicationRecord
   # カラムのremember_digestにはランダムで２２文字入れたものをハッシュ化したものが上書きされてる。
   
   def authenticate?(remember_token)
+    return false if remember_digest.nil?
     BCrypt::Password.new(remember_digest).is_password?(remember_token)
     # 引数に渡された値が、remember_digestの値と等しいかどうかを真偽値で返すメソッドを作った。
     # ちなみに、ここのremember_tokenはattr_accessorのremember_tokenとは全く関係ない。ただの引数として考える。
+  end
+  
+  def forget
+    update_attribute(:remember_digest, nil)
+    # validatesなしでremember_digestを全くないものにさせる。
   end
   
 end

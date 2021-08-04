@@ -1,0 +1,11 @@
+<li>
+  <%= gravatar_for user, size: 50 %>
+  <%= link_to user.name, user %>
+  <% if current_user.admin? && !current_user?(user) %>
+  <!--左は今ログインしてるユーザーのadminがtrueかどうか。
+  右は配列で詰められて表示されたユーザーとログインしてるユーザーが違う時だけ下を表示する-->
+    | <%= link_to "delete", user, method: :delete,
+    # link_toは本来getアクションを呼び出すもの、delete, postを使う時は第三引数に書いてあげる必要がある。
+                                  data: { confirm: "You sure?" } %>
+  <% end %>
+</li>

@@ -16,9 +16,13 @@ class SessionsController < ApplicationController
       #    def log_in(user)
       #     session[:user_id]= user.id
       #    end
-      remember user
+      params[:session][:remember_me]== '1'? remember(user): forget(user)
       # カラムのremember_digestにはランダムで２２文字入れたものをハッシュ化したものがvalidetesに触れずに上書きされてる。
-      redirect_to user
+      redirect_back_or(user)
+      # storeからきてるなら、forward_urlは入ってるから、そのページに遷移する。
+      # そうでないのであれば、user(鬼の短縮系になってるやつ、〇〇_urlが削られ、引数の（）がなくなった版：下の行参考に。)
+      
+      # redirect_to user
       # これも鬼の短縮形のやつ、この文字に対応する〇〇_urlが削られてて、引数の（）がなくなってるって考えれば難しくない。
     else
       flash.now[:danger]="**Invalid email/password combination"
