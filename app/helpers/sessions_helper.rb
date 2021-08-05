@@ -25,7 +25,7 @@ module SessionsHelper
             # cookiesの中に入ってる復号化したuser_idを代入することができるかどうかの条件分岐
             # cookieになければ代入できない。nil=>falseで下の分岐に入れない。
             user=User.find_by(id: user_id)
-            if user && user.authenticate?(cookies[:remember_token])
+            if user && user.authenticate?(:remember, cookies[:remember_token])
                 # cookies[:remember_token]は13行目で定義してるuser.remember_tokenにあたる。
                 # それは、9行目で定義してるmodel/user.rbのrememberメソッドにあたる。
                 # このままじゃハッシュ化されてないから値が揃わない。はず

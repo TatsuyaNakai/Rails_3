@@ -6,11 +6,12 @@ class UsersController < ApplicationController
   # destroynに移るときにadmin_userを実行する。
   
   def index
-    @users=User.paginate(page: params[:page])
+    @users=User.where(activated:true).paginate(page: params[:page])
   end
 
   def show
     @user=User.find(params[:id])
+    redirect_to root_url and return unless @user.activated?
   end
     
   def new
@@ -20,12 +21,10 @@ class UsersController < ApplicationController
   def create
     @user=User.new(user_params)
     if @user.save
-      log_in @user
-      # log_inは、session[:user_id]に引数に与えたもの（@user）を追加すること。sessionのコントローラーで定義してる。
-      
-      flash[:success]="Welcome to the sample App!"
-      # bootstrapは、success, info, warning, dangerの４つの種類でcssを持ってる。から、successにしてる。
-      redirect_to user_url(@user)
+      @user.send_activation_email
+      flash[:info]="Please check your email to activate your account!"
+      # bootstrapは、success, info, warning, dangerの４つの種類でcssを持ってる。
+      redirect_to root_url
     else
       render "new"
       # これはアクション名を書いてる。（routesの一番右側に書いてる。）

@@ -1,0 +1,18 @@
+<h1>Sample App</h1>
+
+<p>Hi <%= @user.name %>,</p>
+
+<p>
+Welcome to the Sample App! Click on the link below to activate your account:
+</p>
+
+<%= link_to "Activate", edit_account_activation_url(@user.activation_token,
+                                                    email: @user.email) %>
+<!-- _urlは絶対パスが入る。mailerで生成した22文字のトークンと登録したメールアドレスがURIにはいる。-->
+<!--このコードの説明
+    1.edit-account_acctivation_urlの絶対パスを表示する。（/account_activations/:id/edit/）
+    2.@user.activation_tokenの処理をする（:idに当たる部分）
+    　1以降にユーザーの新規作成する直前に生成したactivation_tokenをパスに繋げる。
+    3.edit部分の編集
+      editにクエリパラメーターでアドレスを組み込む。自動的に読める形にエスケープしてくれる。
+    ◾︎ _〇〇の部分が引数になっていて、カンマで区切るとスラッシュで区切るのと同じ意味になってる。-->

@@ -1,12 +1,19 @@
 class User < ApplicationRecord
-  attr_accessor :remember_token
+  attr_accessor :remember_token, :activation_token
   # migrationを設定しなくても、remember_tokenを編集、更新できるようにするため
   
-  before_save {self.email= email.downcase}
+  # before_save {self.email= email.downcase}
   # 書き換えようと思ったら↓も可能。破壊的メソッドにしないと元データを変えれないので注意する。
   # before_save {email.downcase!}
   # データベースに保存される直前に全ての文字を小文字に変える処理を書く。
   # before_saveが保存されう直前を表してる。
+  #  これをオブジェクトで作らずに、メソッドで参照させた形が以下になる。（こっちが推奨の書き方）
+  before_save :downcase_email
+  # downcase_emailには、「self.email= email.dowcase」が格納されてる。
+  # 使い方としては、参照をプライベート関数内に置いただけ。それが保存、更新される前に呼び出される。直感的で見やすい。（before_actionみたいな）
+  before_create :create_activation_digest
+  # 新規作成する前に、これを実行する。
+  
   
   validates :name, presence: true, length:{maximum:50}
   # validatesはメソッドで短縮しない書き方やと以下で書ける。
@@ -54,16 +61,50 @@ class User < ApplicationRecord
   end
   # カラムのremember_digestにはランダムで２２文字入れたものをハッシュ化したものが上書きされてる。
   
-  def authenticate?(remember_token)
-    return false if remember_digest.nil?
-    BCrypt::Password.new(remember_digest).is_password?(remember_token)
-    # 引数に渡された値が、remember_digestの値と等しいかどうかを真偽値で返すメソッドを作った。
-    # ちなみに、ここのremember_tokenはattr_accessorのremember_tokenとは全く関係ない。ただの引数として考える。
+  def authenticate?(attribute, token)
+    digest= self.send("#{attribute}_digest")
+    # 第一引数に渡されたもの次第でattributeが変わる(sendの引数には、シンボル、文字列で入れるとメソッドが入るようになってる。)から、それによってdigestも変化する。
+    # このdigestは文字列として入るんじゃなくて、しっかり参照を持ったものとして入る。
+    # ちなみにselfが省略できるから、以下の形でも書くことができる。
+    # digest= send("#{attribute}_digest")
+    return false if digest.nil?
+    # このダイジェストはそもそも存在してる？
+    BCrypt::Password.new(digest).is_password?(token)
+    # 〇〇_digestとtokenを比較する。
+    # Password.newはハッシュ化してて比較できないところを比較できる形に変換してくれる。ハッシュを超えてくる
   end
   
   def forget
     update_attribute(:remember_digest, nil)
     # validatesなしでremember_digestを全くないものにさせる。
   end
+  
+  def activate
+    # update_attribute(:activated,    true)
+    # update_attribute(:activated_at, Time.zone.now)
+    # validatesをスルーさせたいから、わざわざ2行にしてupdate_attributeにしてる。 
+    update_columns(activated:true, activated_at:Time.zone.now)
+    # validatesをスルーさせて複数のカラムを更新する時は、updates_columnsが便利
+  end
+
+  # 有効化用のメールを送信する
+  def send_activation_email
+    UserMailer.account_activation(self).deliver_now
+    # UserMailerはaccount_activationのメソッドがどこにあるかを明示。
+    # account_activationはアクション名、引数に@userをもってすぐに送信する。
+    # 今すぐメールを送信するから、deliver_now, 非同期通信で行う場合は、deliver_laterと書く
+  end
+  
+  private
+    def downcase_email
+      self.email.downcase!
+    end
+    
+    def create_activation_digest
+      self.activation_token= User.new_token
+      # dbには保存してないから、attr_accessorで作成してる。
+      self.activation_digest= User.digest(activation_token)
+      # dbに保存してる。activation_token をハッシュ化したもの。
+    end
   
 end
