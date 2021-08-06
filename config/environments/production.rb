@@ -123,5 +123,6 @@ Rails.application.configure do
     :domain         => host,
     :authentication => :plain,
   }
+  ActionMailer::Base.delivery_method = :smtp
   
 end
