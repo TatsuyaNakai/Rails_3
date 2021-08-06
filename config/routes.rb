@@ -14,4 +14,7 @@ Rails.application.routes.draw do
   
   resources :users
   # いわゆる/users/:id　でどんな番号のURLにも対応できるようにしてる。（Progateのユーザーのルーティングと同じ）
+  
+  resources :account_activations, only: [:edit]
+  # resouces（CRUDを含めた7種類）の中から、only以下だけを絞ってルーティングを作成してる。
 end
