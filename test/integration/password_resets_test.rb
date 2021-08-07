@@ -50,8 +50,11 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
     
     # メールアドレスもトークンも有効
     get edit_password_reset_path(user.reset_token, email: user.email)
+    # 有効なものをうってedit画面に移動できる。
     assert_template 'password_resets/edit'
     assert_select "input[name=email][type=hidden][value=?]", user.email
+    # HTMLのタグを確認する。対応してるかどうか。
+    
     # 無効なパスワードとパスワード確認
     patch password_reset_path(user.reset_token),
           params: { email: user.email,
@@ -72,6 +75,27 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
     assert is_logged_in?
     assert_not flash.empty?
     assert_redirected_to user
+    
+    assert_nil user.reload[:reset_digest]
+    
+  end
+  
+  test "expired token" do
+    get new_password_reset_path
+    post password_resets_path,
+         params: { password_reset: { email: @user.email } }
+
+    @user = assigns(:user)
+    @user.update_attribute(:reset_sent_at, 3.hours.ago)
+    # reset_sent_atの時間（リセットを申請した時間）を今よりも3時間前に設定する。
+    # 2時間しか有効期間がないから、リセットされる。
+    patch password_reset_path(@user.reset_token),
+          params: { email: @user.email,
+                    user: { password:              "foobar",
+                            password_confirmation: "foobar" } }
+    assert_response :redirect
+    follow_redirect!
+    assert_match "expired" , response.body
   end
   
 end

@@ -39,6 +39,9 @@ class PasswordResetsController < ApplicationController
       # user_paramsメソッドを使って不要な更新は避けるフィルターをかけるためにプライベートメソッドに移動
       # きっちり条件を満たして通った場合
       log_in @user
+      @user.update_attribute(:reset_digest, nil)
+      # passwordを更新できたけど、その時間内に何回でも更新できる形になってるから、
+      # 次に更新する時は、またアドレスを入力してもらうためにダイジェストは消しておく。
       flash[:success]="Password has been reset."
       redirect_to @user
     else
