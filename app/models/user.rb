@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
   # migrationを設定しなくても、remember_tokenを編集、更新できるようにするため
   
   # before_save {self.email= email.downcase}
@@ -95,6 +95,32 @@ class User < ApplicationRecord
     # 今すぐメールを送信するから、deliver_now, 非同期通信で行う場合は、deliver_laterと書く
   end
   
+  def create_reset_digest
+    self.reset_token= User.new_token
+    # ２２文字のランダムな文字を格納
+    update_attribute(:reset_digest, User.digest(reset_token))
+    # ハッシュ化したものをバリデーションを通さずに保存
+    update_attribute(:reset_sent_at, Time.zone.now)
+    # Time.zoneを更新する。
+  end
+  
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now
+    # UserMailernのクラスメソッドを(user)で実行してる。
+  end
+  
+  def password_reset_expired?
+    reset_sent_at < 2.hours.ago
+    # 2時間以内、2時間より早い時間
+    # create_reset_digestメソッドがよばれた時点でreset_sent_atが更新されてる。
+    # create_reset_digestがよばれるのは、new_password_resetsのsubmitが押されたタイミング（createアクションが発火する。）
+    # 2時間以内であればtrueを返す。
+  end
+  
+  
+  
+  
+  # ---------------------------------------------------------------
   private
     def downcase_email
       self.email.downcase!

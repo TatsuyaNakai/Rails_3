@@ -41,7 +41,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     # 配信されたメッセージが1つかどうかを確認してる。
     
     user = assigns(:user)
-    # userコントローラからuserインスタンスにアクセスできるようにしてる。
+    # 対応するアクションからuserインスタンスにアクセスできるようにしてる。
     assert_not user.activated?
     # 新規登録した瞬間はactivatedは一律でfalseで設定してる。
     # 有効化していない状態でログインしてみる

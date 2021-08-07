@@ -22,6 +22,7 @@ class UsersController < ApplicationController
     @user=User.new(user_params)
     if @user.save
       @user.send_activation_email
+      # user.rbに参照がある。それから、メイラーに飛んでまた参照がある。（=>ただメールを送信するメソッド）
       flash[:info]="Please check your email to activate your account!"
       # bootstrapは、success, info, warning, dangerの４つの種類でcssを持ってる。
       redirect_to root_url
@@ -55,6 +56,10 @@ class UsersController < ApplicationController
     redirect_to users_url
   end
   
+  
+  
+  
+  # ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
   private
   # 外部からは触ることができないようにプライベートメソッドとして使用
   # 安全性を高めるために必要。今はこれを打たないとエラーが出る

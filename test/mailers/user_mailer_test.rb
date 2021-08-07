@@ -9,19 +9,23 @@ class UserMailerTest < ActionMailer::TestCase
     assert_equal [user.email], mail.to
     assert_equal ["noreply@example.com"], mail.from
     assert_match user.name,               mail.html_part.body.encoded
-    # 正規表現で文字がマッチするかを確認マッチすればテストを通過できる。
+    # assert_matchは、正規表現で文字がマッチするかを確認マッチすればテストを通過できる。
     # encodeで引数に何もない場合はUS-ASCIIにエンコード（翻訳）してる。
     assert_match user.activation_token,   mail.html_part.body.encoded
     assert_match CGI.escape(user.email),  mail.html_part.body.encoded
     # CGI.escapeは、引数内の文字をクエリパラメーターで読み込めるような形にエスケープしてくれてる。
   end
 
-  # test "password_reset" do
-  #   mail = UserMailer.password_reset
-  #   assert_equal "Password reset", mail.subject
-  #   assert_equal ["to@example.org"], mail.to
-  #   assert_equal ["from@example.com"], mail.from
-  #   assert_match "Hi", mail.body.encoded
-  # end
+  test "password_reset" do
+    user=users(:michael)
+    # fixtureのuser.ymlから持ってきてる。テスト環境でのseedみたいなところ。
+    user.reset_token= User.new_token
+    mail = UserMailer.password_reset(user)
+    assert_equal "Password reset", mail.subject
+    assert_equal [user.email], mail.to
+    assert_equal ["noreply@example.com"], mail.from
+    assert_match user.reset_token, mail.body.encoded
+    assert_match CGI.escape(user.email), mail.body.encoded
+  end
 
 end
