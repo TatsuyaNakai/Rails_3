@@ -2,7 +2,7 @@
   <!--model:@userで新規作成と編集が見境がつけにくいかもしれないけど、Railsは独自でそれが新規なのか編集なのかを見極められる。
       Active Recordのnew_record?メソッドを使って真偽を判断してる。-->
   <!-- 送信を押すと、内容を埋める先を第一引数（URLでも代用可）。 localはリモート送信を無効化するかどうか。デフォルトでfalse(無効) -->
-    <%= render 'shared/error_messages', object: @user %>
+    <%= render 'shared/error_messages', object: f.object %>
     
     <%= f.label :name %>
     <%= f.text_field :name, class:"form-control" %>

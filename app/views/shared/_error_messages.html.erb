@@ -1,13 +1,13 @@
-<% if @user.errors.any? %>
+<% if object.errors.any? %>
 <!--メソッドの前のものに１つでも真なものがあればtrue, １つもなければfalse
  今回でいうと、エラーがひとつでもあればtruenになる。よって表示される。-->
   <div id="error_explanation">
     <div class="alert alert-danger">
-      The form contains <%= pluralize(@user.errors.count, "error") %>.
+      The form contains <%= pluralize(object.errors.count, "error") %>.
       <!--pluralizeは第一引数に整数が入れば、第二引数の単語を複数化してくれる。-->
     </div>
     <ul>
-    <% @user.errors.full_messages.each do |msg| %>
+    <% object.errors.full_messages.each do |msg| %>
       <li><%= msg %></li>
     <% end %>
     </ul>

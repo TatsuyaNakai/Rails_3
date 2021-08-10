@@ -7,11 +7,14 @@ class UsersController < ApplicationController
   
   def index
     @users=User.where(activated:true).paginate(page: params[:page])
+    # activatedがtrueなものを全て抜き出して、paginateは1ページあたりのユーザーを（いまはデフォルトで30）分割してる。
+    # paramsが1の時は1~30, 2の時は31~60みたいにページ数を表して、それが@usersに格納される。
+    # まずは全部取り出す。それから分割していく。その分割したものを変数に格納してる。
   end
 
   def show
     @user=User.find(params[:id])
-    redirect_to root_url and return unless @user.activated?
+    @microposts= @user.microposts.paginate(page: params[:page])
   end
     
   def new
@@ -68,16 +71,6 @@ class UsersController < ApplicationController
                                    :password_confirmation)
   # paramsは、formタグで送られてきたもの全ての情報を取得している。 
   # requireはモデルの指定をする、許可するカラムはpermit以降のみそれ以外は許可しない。
-    end
-    
-    def logged_in_user
-      unless logged_in?
-        # ifの逆のことfalseの時に分岐の中に入れる。
-        store_location
-        # 本来行きたかったであろうURIをsession[:forwarding_url]に格納しておく。
-        flash[:danger]="Please log in."
-        redirect_to login_url
-      end
     end
     
     def correct_user

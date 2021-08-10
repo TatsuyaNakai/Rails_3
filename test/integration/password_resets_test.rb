@@ -20,7 +20,8 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
          params: { password_reset: { email: @user.email } }
     # dbに保存されてるmichaelのアドレスを送信する。
     assert_not_equal @user.reset_digest, @user.reload.reset_digest
-    # わからん。同じやと思う、
+    # Minitestの場合は、@user.reset_digestをしただけでは更新された値は入らない。
+    # reloadすることで、値が入ったものを取得することができる。
     assert_equal 1, ActionMailer::Base.deliveries.size
     assert_not flash.empty?
     # メール送りました。のflashが表示されてるはず。

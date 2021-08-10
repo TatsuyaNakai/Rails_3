@@ -1,4 +1,7 @@
 class User < ApplicationRecord
+  has_many :microposts, dependent: :destroy
+  # dependent: :destroyはこのモデルが消された時は、それに紐づいてたモデルも同じように消える動きをするように設定してる。
+  # 道連れにさすよ！！って認識でいいと思う。
   attr_accessor :remember_token, :activation_token, :reset_token
   # migrationを設定しなくても、remember_tokenを編集、更新できるようにするため
   
@@ -116,6 +119,11 @@ class User < ApplicationRecord
     # create_reset_digestメソッドがよばれた時点でreset_sent_atが更新されてる。
     # create_reset_digestがよばれるのは、new_password_resetsのsubmitが押されたタイミング（createアクションが発火する。）
     # 2時間以内であればtrueを返す。
+  end
+  
+  def feed
+    Micropost.where("user_id =?", id)
+    # すべてのマイクロポストを取得する。その時にSQLインジェクションというハッキングを避けることを（）内でしてる。
   end
   
   

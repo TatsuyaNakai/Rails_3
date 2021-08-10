@@ -1,0 +1,17 @@
+<li id="micropost-<%= micropost.id %>">
+  <%= link_to gravatar_for(micropost.user, size:50), micropost.user %>
+  <span class="user"><%= link_to micropost.user.name, micropost.user %></span>
+  <span class="content">
+    <%= micropost.content %>
+    <%= image_tag micropost.display_image if micropost.image.attached? %>
+    <!--display_imageはmicropostモデルで定義されてるメソッド（サイズの上限を決定するメソッド）-->
+  </span>
+  <span class="timestamp">
+    Posted <%= time_ago_in_words(micropost.created_at) %> ago.
+    <!-- 作成された時間から、新しい時間との差分を求めて更新してくれる。-->
+    <% if current_user?(micropost.user) %>
+      <%= link_to "delete", micropost, method: :delete, data: {confirm: "You sure?"} %>
+      <!--link_toはGETメソッドを渡す設定になってるから、deleteの時は第二引数に対象のキー、第三引数に:deleteをつける必要がある。-->
+    <% end %>
+  </span>
+</li>

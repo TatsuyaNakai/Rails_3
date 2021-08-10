@@ -1,7 +1,7 @@
 <% provide(:title, 'All users') %>
 <h1>All users</h1>
 
-<%= will_paginate %>
+<%= will_paginate @users %>
 
 <ul class="users">
   <%# @users.each do |user| %>
@@ -11,4 +11,6 @@
   <%# end %>
 </ul>
 
-<%= will_paginate %>
+<%= will_paginate @users %>
+<!--rails routesでコントローラー名を確認してほしい。
+    コントローラー名のページネーションを表示したい場合は引数を省略することができる。-->

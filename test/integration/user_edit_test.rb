@@ -22,6 +22,7 @@ class UserEditTest < ActionDispatch::IntegrationTest
     get edit_user_path(@user)
     log_in_as(@user)
     assert_redirected_to edit_user_url(@user)
+    # redirectの時は_urlで絶対パスを表示するようにする。
     name="Foo Bar"
     email="foo@bar.com"
     patch user_path(@user), params: { user: { name: name,
@@ -30,6 +31,7 @@ class UserEditTest < ActionDispatch::IntegrationTest
                                               password_confirmation: ""}  }
     assert_not flash.empty?
     assert_redirected_to @user
+    # これは鬼の短縮系（user_url(@user)を指してる。）
     @user.reload
     assert_equal name, @user.name
     assert_equal email, @user.email

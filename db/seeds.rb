@@ -20,3 +20,11 @@ User.create!(name:  "Example User",
                activated:             true,
                activated_at:          Time.zone.now )
 end
+
+users = User.order(:created_at).take(6)
+# create_at順（デフォルトは昇順やから、作られたのが早い順）でユーザーを６人抜き出す。
+50.times do
+  content = Faker::Lorem.sentence(word_count: 5)
+  # FakerモジュールのLoremメソッドを呼んでる。
+  users.each { |user| user.microposts.create!(content: content) }
+end

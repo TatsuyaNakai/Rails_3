@@ -9,5 +9,21 @@
       </h1>
     </section>
   </aside>
+  <div class="col-md-8">
+    <% if @user.microposts.any? %>
+    <!--もしmicropostが1つもない場合はfalseで表示自体をなくす処理-->
+      <h3>Microposts (<%= @user.microposts.count %>)</h3>
+      <!--countは特定のキーに紐づいたmicropostの数を確認しにいってる。-->
+      <ol class="microposts">
+        <% @microposts.each do |micropost| %>
+          <%= render micropost %>
+          <!--micropostの繰り返しを1行で短縮させてる。-->
+          <%#= render @microposts %>
+        <% end %>
+      </ol>
+      <%= will_paginate @microposts %>
+    <% end %>
+  </div>
+
 </div>
 

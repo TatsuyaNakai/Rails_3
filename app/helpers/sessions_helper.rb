@@ -72,8 +72,9 @@ module SessionsHelper
     def store_location
         session[:forwarding_url]= request.original_url if request.get?
         # session変数を使用して、URLを記憶させてる。
-        #  if request.get?　URLはGETアクションか。それなら条件分岐に入る。
-        # request.original_urlはリクエスト先が取得できる。（公式チュートリアルがいってる。）
+        #  if request.get?　URLはGETのHTTPメソッドか。それなら条件分岐に入る。
+        # requestは以降のメソッドの情報を取得できる。
+        # original_urlは元のリクエストURLを取得する。
     end
     
 end

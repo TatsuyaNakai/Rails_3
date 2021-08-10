@@ -89,4 +89,15 @@ class UserTest < ActiveSupport::TestCase
     assert_not @user.authenticate?(:remember, '')
   end
   
+    test "associated microposts should be destroyed" do
+    @user.save
+    @user.microposts.create!(content: "Lorem ipsum")
+    assert_difference 'Micropost.count', -1 do
+      # do以下のことをすることで、第一引数の値が第二引数になるかどうか。
+      # 今回でいうと@user.destroyすることでMicropost.countが-1するかどうか。
+      # 第二引数の変化があればテストを通過できる。
+      @user.destroy
+    end
+  end
+  
 end

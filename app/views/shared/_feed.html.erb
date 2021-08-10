@@ -1,0 +1,17 @@
+<% if @feed_items.any? %>
+  <ol class="microposts">
+    <%#= @feed_items.each do |feed_item| %>
+      <%#= render feed_item %>
+    <%# end %>
+    
+    <%= render @feed_items %>
+  </ol>
+  <%#= will_paginate @feed_items %>
+  <!--HTMLでリンクを確認するとURLが繋がってないから、
+  それに対して↓みたいに繋がるように指定してあげる必要がある。-->
+  <%= will_paginate @feed_items,
+          params: { controller: :static_pages, action: :home} %>
+  <!--ページネーションを押した時のパスを指定してあげる。（rails routesで確認できる。）
+      will_pagenateの第一引数は使用する変数、第二引数は遷移先のパスをparamsで指定する。-->
+<% end %>
+
