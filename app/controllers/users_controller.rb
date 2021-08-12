@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user,  only: [:index, :edit, :update, :destroy]
+  before_action :logged_in_user,  only: [:index, :edit, :update, :destroy, :following, :followers]
   # なんらかの処理(action)が実行される前(before)に処理(method)を特定の(only)アクションでかける。
   before_action :correct_user,    only: [:edit, :update]
   before_action :admin_user,      only: [:destroy]
@@ -57,6 +57,25 @@ class UsersController < ApplicationController
     User.find(params[:id]).destroy
     flash[:success]= "User deleted"
     redirect_to users_url
+  end
+  
+  def following
+    @title = "Following"
+    @user  = User.find(params[:id])
+    @users = @user.following.paginate(page: params[:page])
+    # @user.idがfollower_idと同じactive_relationshipクラスを全て抜き出す。
+    # それをpaginateで１ページあたり30人でページネートする。
+    render 'show_follow'
+  end
+# followingとfollowersのアクションは同じshow_followをレンダリングしてる。
+# よってビューは1枚でいい。
+  def followers
+    @title = "Followers"
+    @user  = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    # @user.idがfollowed_idと同じpassive_relationshipクラスを全て抜き出す。
+    # それをpagenateで１ページあたり30人でページネートする。
+    render 'show_follow'
   end
   
   

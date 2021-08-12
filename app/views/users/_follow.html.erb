@@ -1,0 +1,10 @@
+<%= form_with(model: current_user.active_relationships.build, local: true) do |f| %>
+<!--current_userのactive_relationshipsを作成する
+    current_userの主キー（id）をfollower_idに格納する。外部キーで対応してるから。 -->
+  <div><%= hidden_field_tag :followed_id, @user.id %></div>
+  <!-- params[:followed_id]=@user.id を格納する
+      submitするときにactive_relationshipのfollowed_idを@user.idで埋める。-->
+  <%= f.submit "Follow", class: "btn btn-primary" %>
+<% end %>
+<!--結果として、active_relationshipのfollower_id, followed_idの両方が埋まって
+    active_relationshipが完成する。-->

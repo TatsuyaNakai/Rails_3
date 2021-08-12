@@ -12,10 +12,13 @@ Rails.application.routes.draw do
   get   '/login',   to:'sessions#new'
   post  '/login',   to:'sessions#create'
   delete'/logout',  to:'sessions#destroy'
-  
-  
-  resources :users
-  # いわゆる/users/:id　でどんな番号のURLにも対応できるようにしてる。（Progateのユーザーのルーティングと同じ）
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
+  # 基本的なルーティングがresourcesに入ってる。rails routesで確認できる。
+  # memberメソッドやと、idが含まれるURLを扱うようになるけど、idを指定しない場合は、collectionメソッドを使う。
   
   resources :account_activations, only: [:edit]
   # resouces（CRUDを含めた7種類）の中から、only以下だけを絞ってルーティングを作成してる。
@@ -23,5 +26,7 @@ Rails.application.routes.draw do
   resources :password_resets, only: [:new, :create, :edit, :update]
   
   resources :microposts, only: [:create, :destroy]
+  
+  resources :relationships, only: [:create, :destroy]
   
 end

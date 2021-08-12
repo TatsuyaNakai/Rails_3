@@ -28,3 +28,13 @@ users = User.order(:created_at).take(6)
   # FakerモジュールのLoremメソッドを呼んでる。
   users.each { |user| user.microposts.create!(content: content) }
 end
+
+# 以下のリレーションシップを作成する
+users = User.all
+user  = users.first
+following = users[2..50]
+# 3から51までの配列を選択
+followers = users[3..40]
+# 4から41までの配列を選択する。
+following.each { |followed| user.follow(followed) }
+followers.each { |follower| follower.follow(user) }

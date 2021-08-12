@@ -2,6 +2,29 @@ class User < ApplicationRecord
   has_many :microposts, dependent: :destroy
   # dependent: :destroyはこのモデルが消された時は、それに紐づいてたモデルも同じように消える動きをするように設定してる。
   # 道連れにさすよ！！って認識でいいと思う。
+  has_many :active_relationships, class_name:   "Relationship",
+                                  foreign_key:  "follower_id",
+                                  dependent:    :destroy
+  # Relationshipクラスを使いたいけど、passiveでも使うから、エラーを起こさせないために関連名を変えてる。class_nameで元のクラスを表示、
+  # 外部キーは元々「クラス_id」に自動でなるんやけど、作ってないから、コンピューターに知らせるためにforeign_keyにオプションでつける。
+  # Userが消えた時に一緒に消えるように依存関係を示したクラスを作った。
+  # オブジェクトが手前に来ればその主キーをactive_relationshipsのfollower_idに格納する。
+  
+  has_many :passive_relationships, class_name:  "Relationship",
+                                  foreign_key: "followed_id",
+                                  dependent:   :destroy
+  # 中身はRelationshipクラスと同じやけど、エラーが起きないためにクラスの関連名を変えてる。（passive_relatonship）
+  # これがUserとどこで対応してるのかを示してるのがforeign_key　=> followed_id
+  # 依存関係を示すdependent => 消されたらrelationshipも一緒に消える。のをたくさんもってますよーで複数形にしてるからpassive_relationships
+  
+  has_many :following, through: :active_relationships, source: :followed
+  # active_relationshipsテーブル（外部キーがfollower_idになるrelationshipsテーブルの便宜上1つ目のテーブル。）の
+  # followed_idの全てをfollowingに格納。（オブジェクトがあればfollower_idが決まるから、範囲が狭くなる。）
+  # followedsが文法的におかしいから、sourceで変更してる。
+  
+  has_many :followers, through: :passive_relationships, source: :follower
+  # sourceは書かなくてもよかった。対称性を示したいからチュートリアルが書いてるだけ。それを写しただけ(笑)
+  
   attr_accessor :remember_token, :activation_token, :reset_token
   # migrationを設定しなくても、remember_tokenを編集、更新できるようにするため
   
@@ -126,7 +149,20 @@ class User < ApplicationRecord
     # すべてのマイクロポストを取得する。その時にSQLインジェクションというハッキングを避けることを（）内でしてる。
   end
   
+  def follow(other_user)
+    following << other_user
+    # 引数に入れたものをfollowing（followeds）の配列の最後尾に追加する。
+  end
   
+  def unfollow(other_user)
+    active_relationships.find_by(followed_id: other_user.id).destroy
+    # 引数に入れたもののidをactive_relationshipsテーブルのfollowed_idと重なるものを抽出して、消す、
+  end
+  
+  def following?(other_user)
+    following.include?(other_user)
+    # 引数にいれたものがfollowing(followeds)の配列の中に入ってるかどうか。
+  end
   
   
   # ---------------------------------------------------------------

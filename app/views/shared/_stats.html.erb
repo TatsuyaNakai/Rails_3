@@ -1,0 +1,18 @@
+<% @user ||= current_user %>
+<!--@user= @user || current_user の省略法になってる　-->
+<div class="stats">
+  <a href="<%= following_user_path(@user) %>">
+    <strong id="following" class="stat">
+      <%= @user.following.count %>
+      <!--早く処理するために、データーベース内で計算をしてる。-->
+    </strong>
+    following
+  </a>
+  <a href="<%= followers_user_path(@user) %>">
+    <strong id="followers" class="stat">
+      <%= @user.followers.count %>
+      <!--早く処理するために、データーベース内で計算をしてる。-->
+    </strong>
+    followers
+  </a>
+</div>

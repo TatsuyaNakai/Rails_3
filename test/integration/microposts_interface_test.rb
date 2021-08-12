@@ -25,8 +25,7 @@ class MicropostsInterfaceTest < ActionDispatch::IntegrationTest
     assert_difference 'Micropost.count', 1 do
       post microposts_path, params: { micropost: { content: content, image: image } }
     end
-    assert micropost.image.attached?
-    assert_redirected_to root_url
+    assert assigns(:micropost).image.attached?
     follow_redirect!
     assert_match content, response.body
     # contentの内容が、HTML全体の中のどこかしらにあるかどうか。
