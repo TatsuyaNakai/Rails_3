@@ -1,15 +1,19 @@
 one:
   follower: michael
   followed: lana
+  # michaelはlanaをフォローしてる。
 
 two:
   follower: michael
   followed: malory
+  # michaelはmaloryをフォローしてる。
 
 three:
   follower: lana
   followed: michael
+  # lanaはmichaelをフォローしてる。
 
 four:
   follower: archer
   followed: michael
+  # archerはmichaelをフォローしてる。

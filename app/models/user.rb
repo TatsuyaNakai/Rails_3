@@ -18,9 +18,9 @@ class User < ApplicationRecord
   # 依存関係を示すdependent => 消されたらrelationshipも一緒に消える。のをたくさんもってますよーで複数形にしてるからpassive_relationships
   
   has_many :following, through: :active_relationships, source: :followed
-  # active_relationshipsテーブル（外部キーがfollower_idになるrelationshipsテーブルの便宜上1つ目のテーブル。）の
-  # followed_idの全てをfollowingに格納。（オブジェクトがあればfollower_idが決まるから、範囲が狭くなる。）
-  # followedsが文法的におかしいから、sourceで変更してる。
+  # active_relationshipから見てる。active_relationshipは紐づいたUserを見る時に名前を変更してる。(followedになった。)
+  # だからそのクラスの複数を取ろうと思ったら、followedsになるけど、文法的におかしいから、
+  # folloingっていう言い方にしてる。
   
   has_many :followers, through: :passive_relationships, source: :follower
   # sourceは書かなくてもよかった。対称性を示したいからチュートリアルが書いてるだけ。それを写しただけ(笑)
@@ -145,8 +145,17 @@ class User < ApplicationRecord
   end
   
   def feed
-    Micropost.where("user_id =?", id)
-    # すべてのマイクロポストを取得する。その時にSQLインジェクションというハッキングを避けることを（）内でしてる。
+    # Micropost.where("user_id =?", id)
+    # この第二引数のidはself.idに値する。
+    # 自分自身のidをuser_idに格納して、それを全て配列にして取得してる。
+    # とくに「where(user_id: self.id)」でもよかったけど、SQLインジェクションというハッキングを避けるために、プレースホルダー（SQL）で書いてる。
+    # Micropost.where("user_id IN (?) OR user_id= ?", following_ids, id)
+    # 一つ目の？にはfollowing_ids, 2つ目の？にはid（self.id)が入る。
+    # _idsには、mapメソッドでfollowingを展開して、そのidだけを抜き出したものを再配列化。
+    # その際配列化したものをjoinメソッドで配列をなくしてから、コンマで繋いでる。
+    Micropost.where("user_id IN (:following_ids) OR user_id=:user_id",
+                      following_ids: following_ids, user_id: id)
+    # ハッシュで値を渡してる。
   end
   
   def follow(other_user)
@@ -156,7 +165,7 @@ class User < ApplicationRecord
   
   def unfollow(other_user)
     active_relationships.find_by(followed_id: other_user.id).destroy
-    # 引数に入れたもののidをactive_relationshipsテーブルのfollowed_idと重なるものを抽出して、消す、
+    # 引数に入れたもののidをactive_relationshipsテーブルのfollowed_idと重なるものを削除する、
   end
   
   def following?(other_user)

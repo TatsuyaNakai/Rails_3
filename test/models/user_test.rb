@@ -114,4 +114,24 @@ class UserTest < ActiveSupport::TestCase
     # archerがfollowingの中に入っているかどうか。　false待ち
   end
   
+   test "feed should have the right posts" do
+    michael = users(:michael)
+    archer  = users(:archer)
+    lana    = users(:lana)
+    # フォローしているユーザーの投稿を確認
+    # michaelはlanaをフォローしてる。（relationship.yml参照）
+    lana.microposts.each do |post_following|
+      assert michael.feed.include?(post_following)
+    end
+    # 自分自身の投稿を確認
+    michael.microposts.each do |post_self|
+      assert michael.feed.include?(post_self)
+    end
+    # フォローしていないユーザーの投稿を確認
+    # michaelはarcherをフォローしてない。（relationship.yml参照）
+    archer.microposts.each do |post_unfollowed|
+      assert_not michael.feed.include?(post_unfollowed)
+    end
+  end
+  
 end
